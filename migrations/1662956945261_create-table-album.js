@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 exports.up = pgm => {
   pgm.createTable('album', {
     id: {
@@ -7,11 +5,11 @@ exports.up = pgm => {
       primaryKey: true,
     },
     name: {
-      type: 'CHAR(30)',
+      type: 'TEXT',
       notNull: true,
     },
     year: {
-      type: 'NUMERIC',
+      type: 'INT',
       notNull: true,
     },
   });

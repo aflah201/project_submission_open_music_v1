@@ -25,7 +25,7 @@ class SongsService {
   }
 
   async getSong() {
-    const result = await this._pool.query('SELECT * FROM song');
+    const result = await this._pool.query('SELECT id, title, performer FROM song');
     return result.rows;
   }
 
@@ -41,7 +41,7 @@ class SongsService {
       throw new NotFoundError('Lagu tidak ditemukan');
     }
 
-    return result.rows[0].id;
+    return result.rows[0];
   }
 
   async editSongById(id, { title, year, genre, performer, duration, albumId }) {

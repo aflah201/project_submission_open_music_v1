@@ -1,5 +1,3 @@
-/* eslint-disable camelcase */
-
 exports.up = pgm => {
   pgm.createTable('song', {
     id: {
@@ -7,30 +5,32 @@ exports.up = pgm => {
       primaryKey: true,
     },
     title: {
-      type: 'VARCHAR(30)',
+      type: 'TEXT',
       notNull: true,
     },
     year: {
-      type: 'NUMERIC',
+      type: 'INT',
       notNull: true,
     },
     genre: {
-      type: 'CHAR(30)',
+      type: 'TEXT',
       notNull: true,
     },
     performer: {
-      type: 'VARCHAR(30)',
+      type: 'TEXT',
       notNull: true,
     },
     duration: {
-      type: 'NUMERIC',
-      notNull: true,
+      type: 'INT',
+      notNull: false,
     },
-    albumId: {
-      type: 'VARCHAR(30)',
-      notNull: true,
+    album_id: {
+      type: 'TEXT',
+      notNull: false,
     },
   });
 };
 
-exports.down = pgm => {};
+exports.down = pgm => {
+  pgm.dropTable('song');
+};
