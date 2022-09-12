@@ -3,6 +3,7 @@ require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const album = require('./api/albums');
 const song = require('./api/songs');
+const ClientError = require('./exceptions/ClientError');
 const AlbumsService = require('./services/postgres/AlbumsService');
 const SongsService = require('./services/postgres/SongsService');
 const AlbumsValidator = require('./validator/albums');

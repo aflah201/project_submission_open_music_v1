@@ -10,7 +10,7 @@ class SongsService {
   }
 
   async addSong({ title, year, genre, performer, duration }) {
-    const id = nanoid(16);
+    const id = `song-${nanoid(16)}`;
     const query = {
       text: 'INSERT INTO song VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
       values: [id, title, year, genre, performer, duration, 'albumId'],
