@@ -23,6 +23,9 @@
     "object-curly-newline":"off",
     "arrow-parens":"off",
     "object-property-newline":"off",
-    "newline-per-chained-call":"off"
+    "newline-per-chained-call":"off",
+    "max-len":"off",
+    "prefer-template":"off",
+    "no-else-return":"off"
   }
 }

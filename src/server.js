@@ -1,30 +1,31 @@
 require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
-const ClientError = require('./exceptions/ClientError');
 // Api
 const albums = require('./api/albums');
 const songs = require('./api/songs');
 const users = require('./api/users');
 const authentications = require('./api/authentications');
 const playlists = require('./api/playlists');
-const collaborations = require('./api/collaborations');
+// const collaborations = require('./api/collaborations');
 // Service
 const AlbumsService = require('./services/postgres/AlbumsService');
 const SongsService = require('./services/postgres/SongsService');
 const UsersService = require('./services/postgres/UsersService');
 const AuthenticationsService = require('./services/postgres/AuthenticationsService');
 const PlaylistsService = require('./services/postgres/PlaylistsService');
-const CollaborationsService = require('./services/postgres/CollaborationsService');
+// const CollaborationsService = require('./services/postgres/CollaborationsService');
 // Validator
 const AlbumsValidator = require('./validator/albums');
 const SongsValidator = require('./validator/songs');
 const UsersValidator = require('./validator/users');
 const AuthenticationsValidator = require('./validator/authentications');
 const PlaylistsValidator = require('./validator/playlists');
-const CollaborationsValidator = require('./validator/collaborations');
+// const CollaborationsValidator = require('./validator/collaborations');
 // Tokenize
 const TokenManager = require('./tokenize/TokenManager');
+// Error Handling
+const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
   const albumService = new AlbumsService();
@@ -32,7 +33,7 @@ const init = async () => {
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const playlistsService = new PlaylistsService();
-  const collaborationsService = new CollaborationsService();
+  // const collaborationsService = new CollaborationsService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -45,27 +46,15 @@ const init = async () => {
   });
 
   server.ext('onPreResponse', (request, h) => {
-    // mendapatkan konteks response dari request
     const { response } = request;
-    if (response instanceof Error) {
-      if (response instanceof ClientError) {
-        // membuat response baru dari response toolkit sesuai kebutuhan error handling
-        const newResponse = h.response({
-          status: 'fail',
-          message: response.message,
-        });
-        newResponse.code(response.statusCode);
-        return newResponse;
-      }
-      // Server ERROR!
+    if (response instanceof ClientError) {
       const newResponse = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.',
+        status: 'fail',
+        message: response.message,
       });
-      newResponse.code(500);
+      newResponse.code(response.statusCode);
       return newResponse;
     }
-    // jika bukan ClientError, lanjutkan dengan response sebelumnya (tanpa terintervensi)
     return response.continue || response;
   });
 
@@ -127,16 +116,8 @@ const init = async () => {
     {
       plugin: playlists,
       options: {
-        service: playlistsService,
+        service: playlistsService, songService,
         validator: PlaylistsValidator,
-      },
-    },
-    {
-      plugin: collaborations,
-      options: {
-        collaborationsService,
-        usersService,
-        validator: CollaborationsValidator,
       },
     },
   ]);
