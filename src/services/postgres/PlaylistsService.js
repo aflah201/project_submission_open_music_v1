@@ -3,6 +3,7 @@ const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
+const { mapDBToModel } = require('../../utils');
 
 class PlaylistsService {
   constructor(collaborationsService, songService) {
@@ -81,7 +82,7 @@ class PlaylistsService {
 
   async deleteSongPlaylist(playlistId, songId) {
     const query = {
-      text: 'DELETE FROM song_in_playlist WHERE playlist_id = $1 AND song_id = $2',
+      text: 'DELETE FROM song_in_playlist WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
       values: [playlistId, songId],
     };
     const result = await this._pool.query(query);
