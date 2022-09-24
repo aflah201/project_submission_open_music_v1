@@ -3,12 +3,10 @@ const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
-const { mapDBToModel } = require('../../utils');
 
 class PlaylistsService {
-  constructor(collaborationsService, songService) {
+  constructor(songService) {
     this._pool = new Pool();
-    this._collaborationsService = collaborationsService;
     this._songService = songService;
   }
 
@@ -69,7 +67,7 @@ class PlaylistsService {
     };
 
     const querySong = {
-      text: 'SELECT song.id, song.title, song.performer FROM song JOIN songs_in_playlists ON songs_in_playlists.song_id = song.id WHERE songs_in_playlists.playlist_id = $1 OR songs_in_playlists.playlist_id = $2',
+      text: 'SELECT songs.id, songs.title, songs.performer FROM songs JOIN songs_in_playlists ON songs_in_playlists.song_id = songs.id WHERE songs_in_playlists.playlist_id = $1 OR songs_in_playlists.playlist_id = $2',
       values: [id, playlistId],
     };
 
@@ -120,7 +118,7 @@ class PlaylistsService {
 
   async verifySongId(id) {
     const query = {
-      text: 'SELECT * FROM song WHERE id = $1',
+      text: 'SELECT * FROM songs WHERE id = $1',
       values: [id],
     };
 
