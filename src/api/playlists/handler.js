@@ -40,12 +40,10 @@ class PlaylistsHandler {
     await this._service.verifyPlaylistOwner(playlistId, credentialId);
     await this._service.deletePlaylist(playlistId);
 
-    const response = h.response({
+    return {
       status: 'success',
       message: 'Playlist berhasil dihapus',
-    });
-    response.code(200);
-    return response;
+    };
   }
 
   async postSongPlaylistHandler(request, h) {
@@ -94,12 +92,10 @@ class PlaylistsHandler {
     await this._service.verifySongId(songId);
     await this._service.deleteSongPlaylist(id, songId);
 
-    const response = h.response({
+    return {
       status: 'success',
       message: 'Lagu berhasil dihapus di playlist',
-    });
-    response.code(200);
-    return response;
+    };
   }
 }
 
