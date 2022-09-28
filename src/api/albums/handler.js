@@ -4,6 +4,7 @@ class AlbumsHandler {
     this._validator = validator;
   }
 
+  // Albums
   async postAlbumHandler(request, h) {
     this._validator.validateAlbumPayload(request.payload);
     const { name, year } = request.payload;
@@ -49,6 +50,44 @@ class AlbumsHandler {
       status: 'success',
       message: 'Album berhasil dihapus',
     };
+  }
+
+  // Likes
+  async postLikesHandler(request, h) {
+    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+    await this._service.getAlbumById(id);
+    const liked = await this._service.checkLike(credentialId, id);
+    if (!liked) {
+      const likeId = await this._service.addLike(credentialId, id);
+      const response = h.response({
+        status: 'success',
+        message: `Berhasil melakukan like pada album dengan id: ${likeId}`,
+      });
+      response.code(201);
+      return response;
+    }
+    await this._service.deleteLike(credentialId, id);
+    const response = h.response({
+      status: 'success',
+      message: 'Berhasil melakukan unlike',
+    });
+    response.code(201);
+    return response;
+  }
+
+  async getLikesHandler(request, h) {
+    const { id } = request.params;
+    const { cache, count } = await this._service.getLike(id);
+    const response = h.response({
+      status: 'success',
+      data: {
+        likes: count,
+      },
+    });
+    response.header('X-Data-Source', cache);
+    response.code(200);
+    return response;
   }
 }
 

@@ -4,8 +4,9 @@ const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
 class AlbumsService {
-  constructor() {
+  constructor(cacheService) {
     this._pool = new Pool();
+    this._cacheService = cacheService;
   }
 
   async addAlbum({ name, year, coverUrl }) {
@@ -87,16 +88,63 @@ class AlbumsService {
     }
   }
 
-  async checkAlbum(id) {
+  async addLike(userId, albumId) {
+    const id = `like-${nanoid(16)}`;
     const query = {
-      text: 'SELECT * FROM albums WHERE id = $1',
-      values: [id],
+      text: 'INSERT INTO likes VALUES($1, $2, $3) RETURNING id',
+      values: [id, userId, albumId],
     };
     const result = await this._pool.query(query);
-
-    if (!result.rows.length) {
-      throw new NotFoundError('Album tidak ditemukan');
+    if (!result.rows[0].id) {
+      throw new InvariantError('Gagal melakukan like');
     }
+    await this._cacheService.delete(`likes:${albumId}`);
+    return result.rows[0].id;
+  }
+
+  async getLike(albumId) {
+    try {
+      const result = await this._cacheService.get(`likes:${albumId}`);
+      return {
+        count: JSON.parse(result),
+        cache: 'cache',
+      };
+    } catch (error) {
+      const query = {
+        text: 'SELECT * FROM likes WHERE album_id = $1',
+        values: [albumId],
+      };
+      const result = await this._pool.query(query);
+      if (!result.rows.length) {
+        throw new InvariantError('Album tidak memiliki like');
+      }
+      await this._cacheService.set(`likes:${albumId}`, JSON.stringify(result.rows.length));
+      return {
+        count: result.rows.length,
+        cache: 'db',
+      };
+    }
+  }
+
+  async deleteLike(userId, albumId) {
+    const query = {
+      text: 'DELETE FROM likes WHERE user_id = $1 AND album_id = $2 returning id',
+      values: [userId, albumId],
+    };
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new InvariantError('Gagal melakukan unlike');
+    }
+    await this._cacheService.delete(`likes:${albumId}`);
+  }
+
+  async checkLike(userId, albumId) {
+    const query = {
+      text: 'SELECT * FROM likes WHERE user_id = $1 AND album_id = $2',
+      values: [userId, albumId],
+    };
+    const result = await this._pool.query(query);
+    return result.rows.length;
   }
 }
 

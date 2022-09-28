@@ -23,13 +23,13 @@ class PlaylistsService {
     return result.rows[0].id;
   }
 
-  async getPlaylist(owner) {
+  async getPlaylist(id) {
     const query = {
       text: 'SELECT playlists.id, playlists.name, users.username FROM playlists LEFT JOIN users ON playlists.owner = users.id WHERE playlists.owner = $1',
-      values: [owner],
+      values: [id],
     };
-    const { rows } = await this._pool.query(query);
-    return rows;
+    const result = await this._pool.query(query);
+    return result.rows;
   }
 
   async deletePlaylist(id) {
